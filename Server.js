@@ -1,31 +1,13 @@
 const net = require("net");
 const EventEmitter = require("events");
-const NodeRSA = require("node-rsa");
-const debug = require("debug")("Server");
-
 const emit = EventEmitter.prototype.emit;
 
-class Socket extends EventEmitter {
-	constructor(netSocket) {
-		super();
-		this.netSocket = netSocket;
+const Socket = require("./Socket.js");
 
-		this.netSocket.on("close", () => {
-			emit.call(this, "disconnect");
-		});
-	}
-
-	emit() {
-		this.netSocket.send(...arguments);
-	}
-}
-
-module.exports = class Server extends EventEmitter {
+class Server extends EventEmitter {
 	constructor(rsaOptions) {
 		super();
 
-		this.key = new NodeRSA(rsaOptions);
-		this.publicKey = this.key.exportKey("pkcs1-public-key");
 		this.sockets = [];
 
 		this.server = net.createServer(netSocket => {
@@ -37,7 +19,6 @@ module.exports = class Server extends EventEmitter {
 			});
 
 			emit.call(this, "connection", socket);
-			emit.call(socket, "hi", "hi man!");
 		});
 	}
 
@@ -51,3 +32,5 @@ module.exports = class Server extends EventEmitter {
 		});
 	}
 };
+
+module.exports = Server;
